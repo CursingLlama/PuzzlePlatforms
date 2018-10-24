@@ -21,10 +21,15 @@ public:
 	void BeginPlay() override;
 
 protected:
+	
 	void Tick(float DeltaTime) override;
 
 private:
 
 	//State
-	UPROPERTY(EditAnywhere) float MoveSpeed = 15;
+	UPROPERTY(EditAnywhere) float MoveSpeed = 100;
+	UPROPERTY(EditAnywhere, Meta = (MakeEditWidget = true)) FVector TargetLocation;
+	UPROPERTY() FVector OriginLocation;
+	UPROPERTY() FVector Direction = FVector::ZeroVector;
+
 };

@@ -8,6 +8,8 @@ AMovingPlatform::AMovingPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	SetMobility(EComponentMobility::Movable);
+
+	
 }
 
 void AMovingPlatform::BeginPlay()
@@ -18,7 +20,10 @@ void AMovingPlatform::BeginPlay()
 	{
 		SetReplicates(true);
 		SetReplicateMovement(true);
-	}	
+	}
+
+	OriginLocation = GetActorLocation();
+	TargetLocation = GetTransform().TransformPosition(TargetLocation);
 }
 
 void AMovingPlatform::Tick(float DeltaTime)
@@ -27,9 +32,14 @@ void AMovingPlatform::Tick(float DeltaTime)
 
 	if (HasAuthority())
 	{
+		if (FVector::PointsAreNear(GetActorLocation(), OriginLocation, MoveSpeed * DeltaTime))
+			Direction = (TargetLocation - OriginLocation).GetSafeNormal();
+		if (FVector::PointsAreNear(GetActorLocation(), TargetLocation, MoveSpeed * DeltaTime))
+			Direction = (OriginLocation - TargetLocation).GetSafeNormal();
+		
 		FVector Location = GetActorLocation();
-		Location += GetActorForwardVector() * MoveSpeed * DeltaTime;
+		Location += Direction * MoveSpeed * DeltaTime;
 		SetActorLocation(Location);
 	}
-	
+
 }
