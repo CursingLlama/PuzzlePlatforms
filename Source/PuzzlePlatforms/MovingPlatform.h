@@ -20,16 +20,25 @@ public:
 
 	void BeginPlay() override;
 
+	void AddActiveTrigger();
+	void RemoveActiveTrigger();
+
 protected:
 	
 	void Tick(float DeltaTime) override;
 
 private:
 
-	//State
+	//Config
 	UPROPERTY(EditAnywhere) float MoveSpeed = 100;
+	UPROPERTY(EditAnywhere) int32 RequiredTriggers = 0;
+	
+	//Components
 	UPROPERTY(EditAnywhere, Meta = (MakeEditWidget = true)) FVector TargetLocation;
+
+	//State
 	UPROPERTY() FVector OriginLocation;
 	UPROPERTY() FVector Direction = FVector::ZeroVector;
+	UPROPERTY(VisibleAnywhere) int32 ActiveTriggers = 0;
 
 };

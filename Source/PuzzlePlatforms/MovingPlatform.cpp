@@ -7,9 +7,7 @@
 AMovingPlatform::AMovingPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	SetMobility(EComponentMobility::Movable);
-
-	
+	SetMobility(EComponentMobility::Movable);		
 }
 
 void AMovingPlatform::BeginPlay()
@@ -26,11 +24,24 @@ void AMovingPlatform::BeginPlay()
 	TargetLocation = GetTransform().TransformPosition(TargetLocation);
 }
 
+void AMovingPlatform::AddActiveTrigger()
+{
+	ActiveTriggers++;
+}
+
+void AMovingPlatform::RemoveActiveTrigger()
+{
+	if (ActiveTriggers > 0)
+	{
+		ActiveTriggers--;
+	}	
+}
+
 void AMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HasAuthority())
+	if (HasAuthority() && ActiveTriggers >= RequiredTriggers)
 	{
 		if (FVector::PointsAreNear(GetActorLocation(), OriginLocation, MoveSpeed * DeltaTime))
 			Direction = (TargetLocation - OriginLocation).GetSafeNormal();
