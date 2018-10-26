@@ -3,6 +3,7 @@
 #include "PuzzlePlatformsGameInstance.h"
 
 #include "Engine/Engine.h"
+#include "GameFramework/PlayerController.h"
 
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
@@ -22,6 +23,12 @@ void UPuzzlePlatformsGameInstance::Host()
 	{
 		Engine->AddOnScreenDebugMessage(0, 4, FColor::Green, TEXT("Hosting..."));
 	}
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->ServerTravel("/Game/Dynamic/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+	}
+
 }
 
 void UPuzzlePlatformsGameInstance::Join(const FString& Address)
@@ -31,4 +38,11 @@ void UPuzzlePlatformsGameInstance::Join(const FString& Address)
 	{		
 		Engine->AddOnScreenDebugMessage(0, 4, FColor::Green, FString::Printf(TEXT("Joining: %s"), *Address));
 	}
+
+	APlayerController* Controller = GetFirstLocalPlayerController();
+	if (Controller)
+	{
+		Controller->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	}
+	
 }
