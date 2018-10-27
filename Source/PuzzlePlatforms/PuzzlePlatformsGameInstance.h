@@ -28,5 +28,5 @@ public:
 private:
 
 	UPROPERTY() TSubclassOf<class UUserWidget> MainMenuClass;
-	
+	UPROPERTY() class UMainMenu* Menu;
 };

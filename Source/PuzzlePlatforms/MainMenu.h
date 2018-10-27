@@ -19,9 +19,13 @@ public:
 
 	void SetMenuInterface(class IMenuInterface* Interface);
 
+	void Setup();
+	void Teardown();
+
 protected:
 
 	bool Initialize() override;
+	void OnLevelRemovedFromWorld(ULevel * InLevel, UWorld * InWorld);
 	
 private:
 
