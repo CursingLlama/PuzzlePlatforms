@@ -10,7 +10,9 @@ bool UInGameMenu::Initialize()
 	if (Super::Initialize())
 	{
 		if (ResumeButton) { ResumeButton->OnClicked.AddDynamic(this, &UInGameMenu::ExitMenu); }
-		
+		if (MainMenuButton) { MainMenuButton->OnClicked.AddDynamic(this, &UInGameMenu::LeaveGame); }
+		if (QuitGameButton) { QuitGameButton->OnClicked.AddDynamic(this, &UInGameMenu::QuitGame); }
+
 		return true;
 	}
 	return false;
@@ -19,4 +21,20 @@ bool UInGameMenu::Initialize()
 void UInGameMenu::ExitMenu()
 {
 	Teardown();
+}
+
+void UInGameMenu::LeaveGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->LoadMainMenu();
+	}	
+}
+
+void UInGameMenu::QuitGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->QuitGame();
+	}
 }

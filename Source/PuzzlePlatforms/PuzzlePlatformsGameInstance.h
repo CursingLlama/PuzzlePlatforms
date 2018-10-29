@@ -24,8 +24,10 @@ public:
 	class UInGameMenu* GetInGameMenu() { return InGameMenu; }
 
 	UFUNCTION(BlueprintCallable) void LoadTitleMenu();
-	UFUNCTION(Exec) void Host();
-	UFUNCTION(Exec) void Join(const FString& Address);
+	UFUNCTION(Exec) void Host() override;
+	UFUNCTION(Exec) void Join(const FString& Address) override;
+	UFUNCTION(Exec) void LoadMainMenu() override;
+	UFUNCTION(Exec) void QuitGame();
 
 private:
 

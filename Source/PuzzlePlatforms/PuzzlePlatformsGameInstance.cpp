@@ -4,6 +4,7 @@
 #include "PlatformTrigger.h"
 #include "MainMenu.h"
 #include "InGameMenu.h"
+#include "PuzzlePlatformsGameMode.h"
 
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
@@ -31,6 +32,7 @@ void UPuzzlePlatformsGameInstance::Init()
 	if (InGameMenuClass)
 	{
 		InGameMenu = Cast<UInGameMenu>(CreateWidget<UUserWidget>(this, InGameMenuClass));
+		InGameMenu->SetMenuInterface(this);
 	}
 }
 
@@ -49,11 +51,6 @@ void UPuzzlePlatformsGameInstance::LoadTitleMenu()
 
 void UPuzzlePlatformsGameInstance::Host()
 {
-	UEngine* Engine = GetEngine();
-	if (Engine)
-	{
-		Engine->AddOnScreenDebugMessage(0, 4, FColor::Green, TEXT("Hosting..."));
-	}
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -63,15 +60,39 @@ void UPuzzlePlatformsGameInstance::Host()
 
 void UPuzzlePlatformsGameInstance::Join(const FString& Address)
 {
-	UEngine* Engine = GetEngine();
-	if (Engine)
-	{		
-		Engine->AddOnScreenDebugMessage(0, 4, FColor::Green, FString::Printf(TEXT("Joining: %s"), *Address));
-	}
-
 	APlayerController* Controller = GetFirstLocalPlayerController();
 	if (Controller)
 	{
 		Controller->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	}
+}
+
+void UPuzzlePlatformsGameInstance::LoadMainMenu()
+{
+	APlayerController* Controller = GetFirstLocalPlayerController();
+	if (Controller->HasAuthority())
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			APuzzlePlatformsGameMode* GameMode = World->GetAuthGameMode<APuzzlePlatformsGameMode>();
+			if (GameMode)
+			{
+				GameMode->ReturnToMainMenuHost();
+			}
+		}		
+	}
+	else
+	{
+		Controller->ClientReturnToMainMenuWithTextReason(FText::FromString("Leaving game..."));
 	}	
+}
+
+void UPuzzlePlatformsGameInstance::QuitGame()
+{
+	APlayerController* Controller = GetFirstLocalPlayerController();
+	if (Controller)
+	{
+		Controller->ConsoleCommand("Quit");
+	}
 }

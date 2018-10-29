@@ -27,7 +27,7 @@ public:
 protected:
 
 	void OnLevelRemovedFromWorld(ULevel * InLevel, UWorld * InWorld);
-
+	
 	class IMenuInterface* MenuInterface;
 	UPROPERTY() bool bIsOpen = false;
 	

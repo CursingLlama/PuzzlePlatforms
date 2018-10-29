@@ -27,4 +27,6 @@ private:
 	
 	//Functions
 	UFUNCTION() void ExitMenu();
+	UFUNCTION() void LeaveGame();
+	UFUNCTION() void QuitGame();
 };
