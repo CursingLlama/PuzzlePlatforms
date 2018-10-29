@@ -3,6 +3,7 @@
 #include "PuzzlePlatformsGameInstance.h"
 #include "PlatformTrigger.h"
 #include "MainMenu.h"
+#include "InGameMenu.h"
 
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
@@ -12,42 +13,42 @@
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
-	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/Dynamic/UI/MenuSystem/WBP_MainMenu"));
-	if (MainMenuBPClass.Class)
+	ConstructorHelpers::FClassFinder<UUserWidget> TitleMenuBPClass(TEXT("/Game/Dynamic/UI/MenuSystem/WBP_MainMenu"));
+	if (TitleMenuBPClass.Class)
 	{
-		MainMenuClass = MainMenuBPClass.Class;
+		TitleMenuClass = TitleMenuBPClass.Class;
 	}
-
+	
+	ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT("/Game/Dynamic/UI/MenuSystem/WBP_InGameMenu"));
+	if (InGameMenuBPClass.Class)
+	{
+		InGameMenuClass = InGameMenuBPClass.Class;		
+	}
 }
 
 void UPuzzlePlatformsGameInstance::Init()
 {
-	if (MainMenuClass)
+	if (InGameMenuClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Menu class: %s"), *MainMenuClass->GetName());
+		InGameMenu = Cast<UInGameMenu>(CreateWidget<UUserWidget>(this, InGameMenuClass));
 	}
-	
 }
 
-void UPuzzlePlatformsGameInstance::LoadMenu()
+void UPuzzlePlatformsGameInstance::LoadTitleMenu()
 {
-	if (MainMenuClass)
+	if (TitleMenuClass)
 	{
-		Menu = Cast<UMainMenu>(CreateWidget<UUserWidget>(this, MainMenuClass));
-		if (Menu)
+		TitleMenu = Cast<UMainMenu>(CreateWidget<UUserWidget>(this, TitleMenuClass));
+		if (TitleMenu)
 		{
-			Menu->SetMenuInterface(this);
-			Menu->Setup();
+			TitleMenu->SetMenuInterface(this);
+			TitleMenu->Setup();
 		}
 	}	
 }
 
 void UPuzzlePlatformsGameInstance::Host()
 {
-	if (Menu)
-	{
-		Menu->Teardown();
-	}
 	UEngine* Engine = GetEngine();
 	if (Engine)
 	{
@@ -72,6 +73,5 @@ void UPuzzlePlatformsGameInstance::Join(const FString& Address)
 	if (Controller)
 	{
 		Controller->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-	}
-	
+	}	
 }

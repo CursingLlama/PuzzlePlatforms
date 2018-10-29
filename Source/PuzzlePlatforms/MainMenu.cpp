@@ -5,53 +5,15 @@
 
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/EditableTextBox.h"
 
-
-void UMainMenu::SetMenuInterface(IMenuInterface * Interface)
-{
-	MenuInterface = Interface;
-}
-
-void UMainMenu::Setup()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller)
-		{
-			FInputModeUIOnly InputModeData;
-			InputModeData.SetWidgetToFocus(TakeWidget());
-			InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-			Controller->SetInputMode(InputModeData);
-			Controller->bShowMouseCursor = true;
-		}
-	}	
-	AddToViewport();
-}
-
-void UMainMenu::Teardown()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller)
-		{
-			FInputModeGameOnly InputModeData;
-			Controller->SetInputMode(InputModeData);
-			Controller->bShowMouseCursor = false;
-		}
-	}
-	RemoveFromViewport();
-}
 
 bool UMainMenu::Initialize()
 {
 	if (Super::Initialize())
 	{
 		if (HostButton) { HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer); }
+		if (JoinGameButton) { JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::JoinGame); }
 		if (MainToJoinButton) { MainToJoinButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu); }
 		if (JoinToMainButton) { JoinToMainButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu); }
 		return true;
@@ -59,10 +21,6 @@ bool UMainMenu::Initialize()
 	return false;
 }
 
-void UMainMenu::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
-{
-	Teardown();
-}
 
 void UMainMenu::HostServer()
 {
@@ -88,4 +46,11 @@ void UMainMenu::OpenMainMenu()
 	}
 }
 
+void UMainMenu::JoinGame()
+{
+	if (MenuInterface && IPAddressField)
+	{
+		MenuInterface->Join(IPAddressField->GetText().ToString());
+	}
+}
 

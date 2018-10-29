@@ -8,6 +8,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
+#include "PuzzlePlatformsGameInstance.h"
+#include "InGameMenu.h"
 
 //////////////////////////////////////////////////////////////////////////
 // APuzzlePlatformsCharacter
@@ -44,7 +48,7 @@ APuzzlePlatformsCharacter::APuzzlePlatformsCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,6 +78,25 @@ void APuzzlePlatformsCharacter::SetupPlayerInputComponent(class UInputComponent*
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &APuzzlePlatformsCharacter::OnResetVR);
+
+	//In Game Menu Functionality
+	PlayerInputComponent->BindAction("ToggleMenu", IE_Released, this, &APuzzlePlatformsCharacter::ToggleMenu);
+}
+
+void APuzzlePlatformsCharacter::ToggleMenu()
+{	
+	UPuzzlePlatformsGameInstance* GameInstance = Cast<UPuzzlePlatformsGameInstance>(GetGameInstance());
+	if (!GameInstance) return;
+	UInGameMenu* Menu = GameInstance->GetInGameMenu();
+	if (!Menu) return;
+	if (Menu->IsOpen())
+	{
+		Menu->Teardown();
+	}
+	else
+	{
+		Menu->Setup();
+	}
 }
 
 
