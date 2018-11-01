@@ -27,7 +27,7 @@ void UInGameMenu::LeaveGame()
 {
 	if (MenuInterface)
 	{
-		MenuInterface->LoadMainMenu();
+		MenuInterface->LoadTitleMenu();
 	}	
 }
 

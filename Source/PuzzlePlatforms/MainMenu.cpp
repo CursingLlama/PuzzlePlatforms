@@ -2,11 +2,23 @@
 
 #include "MainMenu.h"
 #include "MenuInterface.h"
+#include "ServerRow.h"
 
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 
+#include "UObject/ConstructorHelpers.h"
+
+UMainMenu::UMainMenu()
+{
+	ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/Dynamic/UI/MenuSystem/WBP_ServerRow"));
+	if (ServerRowBPClass.Class)
+	{
+		ServerRowClass = ServerRowBPClass.Class;
+	}
+}
 
 bool UMainMenu::Initialize()
 {
@@ -21,7 +33,6 @@ bool UMainMenu::Initialize()
 	return false;
 }
 
-
 void UMainMenu::HostServer()
 {
 	if (MenuInterface)
@@ -30,11 +41,40 @@ void UMainMenu::HostServer()
 	}
 }
 
+void UMainMenu::SetServerList(TArray<FString> ServerNames)
+{
+	if (ServerRowClass)
+	{
+		ServerList->ClearChildren();
+
+		uint32 Index = 0;
+		for (const FString& Name : ServerNames)
+		{
+			UServerRow* ServerRow = Cast<UServerRow>(CreateWidget<UUserWidget>(this, ServerRowClass));
+			if (ServerRow)
+			{
+				ServerRow->Setup(this, Index++);
+				ServerRow->ServerName->SetText(FText::FromString(Name));
+				ServerList->AddChild(ServerRow);
+			}
+		}
+	}
+}
+
+void UMainMenu::SelectIndex(uint32 NewIndex)
+{
+	SelectedIndex = NewIndex;
+}
+
 void UMainMenu::OpenJoinMenu()
 {
 	if (MenuSwitcher && JoinMenu)
 	{
 		MenuSwitcher->SetActiveWidget(JoinMenu);
+		if (MenuInterface)
+		{
+			MenuInterface->RefreshServerList();
+		}		
 	}	
 }
 
@@ -48,9 +88,17 @@ void UMainMenu::OpenMainMenu()
 
 void UMainMenu::JoinGame()
 {
-	if (MenuInterface && IPAddressField)
+	if (MenuInterface && ServerList)
 	{
-		MenuInterface->Join(IPAddressField->GetText().ToString());
+		if (SelectedIndex.IsSet())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SelectedIndex: %d"), SelectedIndex.GetValue());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SelectedIndex not set."));
+		}
+		//MenuInterface->Join("");
 	}
 }
 

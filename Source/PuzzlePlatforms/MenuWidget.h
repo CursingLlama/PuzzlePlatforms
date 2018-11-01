@@ -14,7 +14,6 @@ class PUZZLEPLATFORMS_API UMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-	
 public:
 
 	void Setup();
