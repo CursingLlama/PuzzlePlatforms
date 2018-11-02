@@ -154,30 +154,9 @@ void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, b
 	}
 }
 
-void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSucceeded)
-{
-	if (SessionSearch && bSucceeded)
-	{
-		if (SessionSearch->SearchResults.Num() == 0) UE_LOG(LogTemp, Warning, TEXT("No open sessions found!"));
-		TArray<FString> ServerNames;
-		for (const FOnlineSessionSearchResult& Result : SessionSearch->SearchResults)
-		{
-			ServerNames.Emplace(Result.GetSessionIdStr());
-		}
-		if (TitleMenu)
-		{
-			TitleMenu->SetServerList(ServerNames);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("FindSessions failed"));
-	}
-}
-
 void UPuzzlePlatformsGameInstance::Join(uint32 Index)
 {
-	if (SessionInterface && SessionSearch)
+	if (SessionInterface && SessionSearch && SessionSearch->SearchResults.IsValidIndex(Index))
 	{
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
 	}
@@ -217,6 +196,28 @@ void UPuzzlePlatformsGameInstance::RefreshServerList()
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSucceeded)
+{
+	if (SessionSearch && bSucceeded)
+	{
+		if (SessionSearch->SearchResults.Num() == 0) UE_LOG(LogTemp, Warning, TEXT("No open sessions found!"));
+		TArray<FString> ServerNames;
+
+		for (const FOnlineSessionSearchResult& Result : SessionSearch->SearchResults)
+		{
+			ServerNames.Emplace(Result.GetSessionIdStr());
+		}
+		if (TitleMenu)
+		{
+			TitleMenu->SetServerList(ServerNames);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FindSessions failed"));
 	}
 }
 

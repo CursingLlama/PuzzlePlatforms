@@ -63,7 +63,17 @@ void UMainMenu::SetServerList(TArray<FString> ServerNames)
 
 void UMainMenu::SelectIndex(uint32 NewIndex)
 {
+	if (!ServerList) return;
+
 	SelectedIndex = NewIndex;
+	for (int i = 0; i < ServerList->GetChildrenCount(); i++)
+	{
+		UServerRow* Child = Cast<UServerRow>(ServerList->GetChildAt(i));
+		if (Child && SelectedIndex.IsSet())
+		{
+			Child->bIsSelected = (i == SelectedIndex.GetValue());
+		}
+	}
 }
 
 void UMainMenu::OpenJoinMenu()
