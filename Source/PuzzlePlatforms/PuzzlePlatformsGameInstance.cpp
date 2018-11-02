@@ -42,7 +42,8 @@ void UPuzzlePlatformsGameInstance::Init()
 		{
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
-			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionsComplete);		
+			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionsComplete);
+			SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnJoinSessionComplete);
 		}
 	}
 
@@ -117,9 +118,10 @@ void UPuzzlePlatformsGameInstance::CreateNewSession()
 	if (SessionInterface)
 	{
 		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bIsLANMatch = true;
+		SessionSettings.bIsLANMatch = false;
 		SessionSettings.NumPublicConnections = 2;
 		SessionSettings.bShouldAdvertise = true;
+		SessionSettings.bUsesPresence = true;
 
 		SessionInterface->CreateSession(0, FName(SESSION_NAME), SessionSettings);
 	}	
@@ -173,13 +175,34 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSucceeded)
 	}
 }
 
-void UPuzzlePlatformsGameInstance::Join(const FString& Address)
+void UPuzzlePlatformsGameInstance::Join(uint32 Index)
 {
-	/*APlayerController* Controller = GetFirstLocalPlayerController();
-	if (Controller)
+	if (SessionInterface && SessionSearch)
 	{
-		Controller->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-	}*/
+		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	APlayerController* Controller = GetFirstLocalPlayerController();
+	if (Controller && SessionInterface)
+	{
+		FString URL;
+		if (SessionInterface->GetResolvedConnectString(SessionName, URL))
+		{
+			UEngine* Engine = GetEngine();
+			if (Engine)
+			{
+				Engine->AddOnScreenDebugMessage(0, 4, FColor::Green, FString::Printf(TEXT("Joining: %s"), *URL));
+			}
+			Controller->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Join Delegate] Could not get resolved string!"));
+		}
+	}
 }
 
 void UPuzzlePlatformsGameInstance::RefreshServerList()
@@ -188,7 +211,10 @@ void UPuzzlePlatformsGameInstance::RefreshServerList()
 	if (SessionSearch)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Finding Sessions..."));
-		SessionSearch->bIsLanQuery = true;
+
+		SessionSearch->bIsLanQuery = false;
+		SessionSearch->MaxSearchResults = 100;
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 	}

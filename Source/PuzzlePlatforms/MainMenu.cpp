@@ -87,18 +87,15 @@ void UMainMenu::OpenMainMenu()
 }
 
 void UMainMenu::JoinGame()
-{
-	if (MenuInterface && ServerList)
+{	
+	if (SelectedIndex.IsSet() && MenuInterface)
 	{
-		if (SelectedIndex.IsSet())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SelectedIndex: %d"), SelectedIndex.GetValue());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SelectedIndex not set."));
-		}
-		//MenuInterface->Join("");
+		MenuInterface->Join(SelectedIndex.GetValue());
+		UE_LOG(LogTemp, Warning, TEXT("SelectedIndex: %d"), SelectedIndex.GetValue());
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SelectedIndex not set."));
+	}	
 }
 
