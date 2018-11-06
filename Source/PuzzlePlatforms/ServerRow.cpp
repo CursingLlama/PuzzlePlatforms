@@ -24,7 +24,10 @@ bool UServerRow::Initialize()
 
 void UServerRow::OnSelectPressed()
 {
-	Parent->SelectIndex(Index);
+	if (Parent)
+	{
+		Parent->SelectIndex(Index);
+	}	
 }
 
 

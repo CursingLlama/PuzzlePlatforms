@@ -29,7 +29,7 @@ public:
 
 	//Menu Interface Functions
 	UFUNCTION(Exec) void LoadTitleMenu() override;
-	UFUNCTION(Exec) void Host() override;
+	UFUNCTION(Exec) void Host(FName Name) override;
 	UFUNCTION(Exec) void Join(uint32 Index) override;
 	UFUNCTION(Exec) void RefreshServerList() override;
 	UFUNCTION(Exec) void QuitGame() override;
@@ -48,5 +48,5 @@ private:
 	void OnDestroySessionComplete(FName SessionName, bool bSucceeded);
 	void OnFindSessionsComplete(bool bSucceeded);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	void CreateNewSession();
+	void CreateNewSession(FName Name);
 };

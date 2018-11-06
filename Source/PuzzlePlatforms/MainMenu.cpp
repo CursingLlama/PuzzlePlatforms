@@ -24,10 +24,12 @@ bool UMainMenu::Initialize()
 {
 	if (Super::Initialize())
 	{
-		if (HostButton) { HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer); }
+		if (HostGameButton) { HostGameButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer); }
 		if (JoinGameButton) { JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::JoinGame); }
 		if (MainToJoinButton) { MainToJoinButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu); }
+		if (MainToHostButton) { MainToHostButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu); }
 		if (JoinToMainButton) { JoinToMainButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu); }
+		if (HostToMainButton) { HostToMainButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu); }
 		return true;
 	}
 	return false;
@@ -35,26 +37,28 @@ bool UMainMenu::Initialize()
 
 void UMainMenu::HostServer()
 {
-	if (MenuInterface)
+	if (MenuInterface && SessionName)
 	{
-		MenuInterface->Host();
+		MenuInterface->Host(FName(*SessionName->GetText().ToString()));
 	}
 }
 
-void UMainMenu::SetServerList(TArray<FString> ServerNames)
+void UMainMenu::SetServerList(TArray<FServerData> ServerNames)
 {
 	if (ServerRowClass)
 	{
 		ServerList->ClearChildren();
 
 		uint32 Index = 0;
-		for (const FString& Name : ServerNames)
+		for (const FServerData& Data : ServerNames)
 		{
 			UServerRow* ServerRow = Cast<UServerRow>(CreateWidget<UUserWidget>(this, ServerRowClass));
 			if (ServerRow)
 			{
 				ServerRow->Setup(this, Index++);
-				ServerRow->ServerName->SetText(FText::FromString(Name));
+				ServerRow->ServerName->SetText(FText::FromString(Data.SessionName));
+				ServerRow->PlayerCount->SetText(FText::FromString(FString::Printf(TEXT("%i/%i"), Data.CurrentPlayers, Data.MaxPlayers)));
+				ServerRow->Ping->SetText(FText::FromString(FString::Printf(TEXT("%i ms"), Data.Ping)));
 				ServerList->AddChild(ServerRow);
 			}
 		}
@@ -86,6 +90,14 @@ void UMainMenu::OpenJoinMenu()
 			MenuInterface->RefreshServerList();
 		}		
 	}	
+}
+
+void UMainMenu::OpenHostMenu()
+{
+	if (MenuSwitcher && HostMenu)
+	{
+		MenuSwitcher->SetActiveWidget(HostMenu);		
+	}
 }
 
 void UMainMenu::OpenMainMenu()

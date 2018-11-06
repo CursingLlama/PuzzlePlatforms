@@ -20,6 +20,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly) bool bIsSelected = false;
 	UPROPERTY(meta = (BindWidget)) class UTextBlock* ServerName;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* PlayerCount;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* Ping;
 	
 protected:
 
