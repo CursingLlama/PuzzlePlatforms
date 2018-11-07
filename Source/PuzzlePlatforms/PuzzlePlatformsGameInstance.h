@@ -33,6 +33,7 @@ public:
 	UFUNCTION(Exec) void Join(uint32 Index) override;
 	UFUNCTION(Exec) void RefreshServerList() override;
 	UFUNCTION(Exec) void QuitGame() override;
+	UFUNCTION() void StartSession();
 
 private:
 

@@ -29,5 +29,3 @@ void UServerRow::OnSelectPressed()
 		Parent->SelectIndex(Index);
 	}	
 }
-
-

@@ -14,7 +14,7 @@
 
 #include "OnlineSessionSettings.h"
 
-static const FName SESSION_NAME("GameSession");
+static const FName NAME_KEY("GameSession");
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
@@ -102,10 +102,10 @@ void UPuzzlePlatformsGameInstance::Host(FString ServerName)
 	DesiredServerName = ServerName;
 	if (SessionInterface)
 	{
-		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
+		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
 		if (ExistingSession)
 		{
-			SessionInterface->DestroySession(SESSION_NAME);
+			SessionInterface->DestroySession(NAME_GameSession);
 		}
 		else
 		{
@@ -120,12 +120,12 @@ void UPuzzlePlatformsGameInstance::CreateNewSession()
 	{
 		FOnlineSessionSettings SessionSettings;
 		SessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL";
-		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.NumPublicConnections = 5;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
-		SessionSettings.Set(SESSION_NAME, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		SessionSettings.Set(NAME_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
+		SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings);
 	}	
 }
 
@@ -140,7 +140,7 @@ void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bo
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->ServerTravel("/Game/Dynamic/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+		World->ServerTravel("/Game/Dynamic/ThirdPersonCPP/Maps/Lobby?listen");
 	}
 }
 
@@ -160,7 +160,7 @@ void UPuzzlePlatformsGameInstance::Join(uint32 Index)
 {
 	if (SessionInterface && SessionSearch && SessionSearch->SearchResults.IsValidIndex(Index))
 	{
-		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+		SessionInterface->JoinSession(0, NAME_GameSession, SessionSearch->SearchResults[Index]);
 	}
 }
 
@@ -215,7 +215,7 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSucceeded)
 			ServerData.SessionID = Result.GetSessionIdStr();
 			
 			FString Name;
-			if (Result.Session.SessionSettings.Get(SESSION_NAME, Name))
+			if (Result.Session.SessionSettings.Get(NAME_KEY, Name))
 			{
 				ServerData.SessionName = Name;
 			}
@@ -249,5 +249,13 @@ void UPuzzlePlatformsGameInstance::QuitGame()
 	if (Controller)
 	{
 		Controller->ConsoleCommand("Quit");
+	}
+}
+
+void UPuzzlePlatformsGameInstance::StartSession()
+{
+	if (SessionInterface)
+	{
+		SessionInterface->StartSession(NAME_GameSession);
 	}
 }
