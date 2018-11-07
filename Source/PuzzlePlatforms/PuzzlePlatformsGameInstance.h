@@ -29,7 +29,7 @@ public:
 
 	//Menu Interface Functions
 	UFUNCTION(Exec) void LoadTitleMenu() override;
-	UFUNCTION(Exec) void Host(FName Name) override;
+	UFUNCTION(Exec) void Host(FString ServerName) override;
 	UFUNCTION(Exec) void Join(uint32 Index) override;
 	UFUNCTION(Exec) void RefreshServerList() override;
 	UFUNCTION(Exec) void QuitGame() override;
@@ -43,10 +43,11 @@ private:
 
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+	FString DesiredServerName;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSucceeded);
 	void OnDestroySessionComplete(FName SessionName, bool bSucceeded);
 	void OnFindSessionsComplete(bool bSucceeded);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	void CreateNewSession(FName Name);
+	void CreateNewSession();
 };

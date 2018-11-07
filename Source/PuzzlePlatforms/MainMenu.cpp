@@ -39,7 +39,7 @@ void UMainMenu::HostServer()
 {
 	if (MenuInterface && SessionName)
 	{
-		MenuInterface->Host(FName(*SessionName->GetText().ToString()));
+		MenuInterface->Host(SessionName->GetText().ToString());
 	}
 }
 
@@ -118,6 +118,5 @@ void UMainMenu::JoinGame()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SelectedIndex not set."));
-	}	
+	}
 }
-

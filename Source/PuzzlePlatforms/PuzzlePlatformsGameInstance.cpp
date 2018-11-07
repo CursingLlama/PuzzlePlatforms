@@ -97,23 +97,24 @@ void UPuzzlePlatformsGameInstance::LoadTitleMenu()
 	}
 }
 
-void UPuzzlePlatformsGameInstance::Host(FName Name)
+void UPuzzlePlatformsGameInstance::Host(FString ServerName)
 {
+	DesiredServerName = ServerName;
 	if (SessionInterface)
 	{
-		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(Name);
+		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
 		if (ExistingSession)
 		{
-			SessionInterface->DestroySession(Name);
+			SessionInterface->DestroySession(SESSION_NAME);
 		}
 		else
 		{
-			CreateNewSession(Name);
+			CreateNewSession();
 		}		
 	}	
 }
 
-void UPuzzlePlatformsGameInstance::CreateNewSession(FName Name)
+void UPuzzlePlatformsGameInstance::CreateNewSession()
 {
 	if (SessionInterface)
 	{
@@ -122,9 +123,9 @@ void UPuzzlePlatformsGameInstance::CreateNewSession(FName Name)
 		SessionSettings.NumPublicConnections = 2;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
-		SessionSettings.Set(FName("SessionName"), Name.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		SessionSettings.Set(SESSION_NAME, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-		SessionInterface->CreateSession(0, FName(SESSION_NAME), SessionSettings);
+		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}	
 }
 
@@ -147,7 +148,7 @@ void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, b
 {
 	if (bSucceeded)
 	{
-		CreateNewSession(SessionName);
+		CreateNewSession();
 	}
 	else
 	{
@@ -214,7 +215,7 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSucceeded)
 			ServerData.SessionID = Result.GetSessionIdStr();
 			
 			FString Name;
-			if (Result.Session.SessionSettings.Get(FName("SessionName"), Name)) 
+			if (Result.Session.SessionSettings.Get(SESSION_NAME, Name))
 			{
 				ServerData.SessionName = Name;
 			}
